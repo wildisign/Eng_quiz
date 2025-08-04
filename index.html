@@ -333,57 +333,129 @@
             font-style: normal;
         }
 
+        /* 버튼 개선 스타일 */
+        .close-btn, .back-btn {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .close-btn:hover {
+            background: #d63031;
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-btn:hover {
+            background: #0984e3;
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 터치 디바이스를 위한 활성화 효과 */
+        .btn:active, .close-btn:active, .back-btn:active {
+            opacity: 0.8;
+        }
+
         @media (max-width: 480px) {
             body {
-                padding: 10px;
+                padding: 8px;
             }
             
             .container {
-                height: auto;
-                max-height: 98vh;
+                height: 100vh;
+                max-height: 100vh;
                 border-radius: 20px;
+                overflow: hidden;
             }
             
             .screen {
-                padding: 15px;
+                padding: 75px 15px 15px 15px; /* 상단 패딩 대폭 증가 */
+            }
+            
+            /* 홈 화면은 상단 버튼이 없으므로 패딩 적게 */
+            #home-screen {
+                padding: 20px 15px 15px 15px;
             }
             
             .logo {
-                font-size: 2.2em;
+                font-size: 2.0em;
             }
             
             h1 {
-                font-size: 1.4em;
+                font-size: 1.3em;
+            }
+            
+            h2 {
+                font-size: 0.85em;
+                margin-bottom: 15px;
             }
             
             .question-text {
-                font-size: 1.1em;
+                font-size: 1.05em;
+                line-height: 1.5;
             }
             
             .answer-text {
-                font-size: 1.1em;
+                font-size: 1.05em;
+                line-height: 1.4;
+            }
+            
+            .answer-card {
+                max-height: 45vh; /* 답안 카드 최대 높이 제한 */
+                overflow-y: auto; /* 긴 텍스트는 스크롤 */
+                margin-bottom: 20px;
+            }
+            
+            .question-card {
+                margin-bottom: 20px;
             }
             
             .btn {
-                padding: 12px 25px;
-                font-size: 1em;
+                padding: 12px 20px;
+                font-size: 0.95em;
             }
             
             .controls-row {
-                flex-direction: column;
-                align-items: center;
+                flex-direction: row; /* 가로 배치로 변경 */
+                justify-content: space-between;
+                gap: 10px;
             }
 
             .btn-small {
-                min-width: 140px;
+                min-width: 110px;
+                padding: 10px 12px;
+                font-size: 0.85em;
+                flex: 1; /* 남은 공간을 균등분할 */
+                max-width: 140px;
             }
 
             .keyword-popup {
                 padding: 20px;
+                max-width: 280px;
             }
 
             .keyword-word {
-                font-size: 1.5em;
+                font-size: 1.4em;
+            }
+            
+            .keyword-meaning {
+                font-size: 1.0em;
+            }
+            
+            .keyword-synonyms {
+                font-size: 0.9em;
+            }
+            
+            /* 더 작은 화면을 위한 추가 최적화 */
+            @media (max-width: 360px) {
+                .btn-small {
+                    font-size: 0.8em;
+                    padding: 8px 10px;
+                    min-width: 100px;
+                }
+                
+                .question-text, .answer-text {
+                    font-size: 1.0em;
+                }
             }
         }
 
@@ -440,7 +512,7 @@
                 </button>
                 <div class="controls-row">
                     <button class="btn btn-small btn-secondary" onclick="nextQuestion()">
-                        ⏭️ 다음 문제
+                        ⏭️ 다음
                     </button>
                 </div>
             </div>
@@ -462,10 +534,10 @@
                             onmouseup="hideKeywordPopup()"
                             ontouchstart="showKeywordPopup()" 
                             ontouchend="hideKeywordPopup()">
-                        🔑 핵심단어
+                        🔑 단어
                     </button>
                     <button class="btn btn-small btn-secondary" onclick="nextQuestion()">
-                        ⏭️ 다음 문제
+                        ⏭️ 다음
                     </button>
                 </div>
             </div>
