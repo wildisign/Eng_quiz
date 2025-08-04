@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어 문장 퀴즈</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 50%, #6c5ce7 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 450px;
+            min-height: 450px;
+            max-height: 95vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff7675;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: none;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #d63031;
+            transform: scale(1.1);
+        }
+
+        .close-btn.visible {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #74b9ff;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.4em;
+            cursor: pointer;
+            display: none;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #0984e3;
+            transform: scale(1.1);
+        }
+
+        .back-btn.visible {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .screen.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1 {
+            color: #2d3436;
+            margin-bottom: 8px;
+            font-size: 1.6em;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: #636e72;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            font-weight: 400;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(116, 185, 255, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(116, 185, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            box-shadow: 0 8px 20px rgba(162, 155, 254, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 12px 25px rgba(162, 155, 254, 0.4);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            box-shadow: 0 8px 20px rgba(0, 184, 148, 0.3);
+        }
+
+        .btn-green:hover {
+            box-shadow: 0 12px 25px rgba(0, 184, 148, 0.4);
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid #74b9ff;
+        }
+
+        .question-title {
+            color: #74b9ff;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            color: #2d3436;
+            line-height: 1.6;
+            font-weight: 500;
+            word-break: keep-all;
+        }
+
+        .answer-card {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 184, 148, 0.3);
+            color: white;
+        }
+
+        .answer-title {
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .answer-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            word-break: keep-all;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 12px 20px;
+            font-size: 0.95em;
+            min-width: 110px;
+        }
+
+        .loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e3e3e3;
+            border-top: 4px solid #74b9ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #ff7675;
+            background: #ffeaa7;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+
+        /* 핵심단어 팝업 스타일 */
+        .keyword-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            max-width: 300px;
+            width: 90%;
+            border: 3px solid #74b9ff;
+        }
+
+        .keyword-popup.visible {
+            display: block;
+        }
+
+        .keyword-popup-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .keyword-popup-backdrop.visible {
+            display: block;
+        }
+
+        .keyword-word {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #74b9ff;
+            margin-bottom: 15px;
+        }
+
+        .keyword-meaning {
+            font-size: 1.1em;
+            color: #2d3436;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .keyword-synonyms {
+            font-size: 0.95em;
+            color: #636e72;
+            font-style: italic;
+        }
+
+        .keyword-synonyms strong {
+            color: #2d3436;
+            font-style: normal;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                height: auto;
+                max-height: 98vh;
+                border-radius: 20px;
+            }
+            
+            .screen {
+                padding: 15px;
+            }
+            
+            .logo {
+                font-size: 2.2em;
+            }
+            
+            h1 {
+                font-size: 1.4em;
+            }
+            
+            .question-text {
+                font-size: 1.1em;
+            }
+            
+            .answer-text {
+                font-size: 1.1em;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+            
+            .controls-row {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-small {
+                min-width: 140px;
+            }
+
+            .keyword-popup {
+                padding: 20px;
+            }
+
+            .keyword-word {
+                font-size: 1.5em;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="close-btn" onclick="goHome()">×</button>
+        <button class="back-btn" onclick="goBackToQuestion()">‹</button>
+
+        <!-- 메인 화면 -->
+        <div class="screen active" id="home-screen">
+            <div class="logo">📚</div>
+            <h1>영어 문장 퀴즈</h1>
+            <h2>한국어 뜻을 보고 영어 문장을 맞춰보세요!</h2>
+            
+            <button class="btn" onclick="startQuiz()">
+                🚀 퀴즈 시작
+            </button>
+
+            <div id="data-info" class="error-message" style="display: none;">
+                데이터를 불러오는 중...
+            </div>
+        </div>
+
+        <!-- 로딩 화면 -->
+        <div class="screen" id="loading-screen">
+            <div class="loading-screen">
+                <div class="spinner"></div>
+                <h2>데이터를 불러오는 중...</h2>
+            </div>
+        </div>
+
+        <!-- 질문 화면 -->
+        <div class="screen" id="question-screen">
+            <div class="question-card">
+                <div class="question-title">📖 한국어 뜻</div>
+                <div class="question-text" id="question-text">
+                    질문이 여기에 표시됩니다.
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="showAnswer()">
+                    💡 정답 확인
+                </button>
+                <div class="controls-row">
+                    <button class="btn btn-small btn-secondary" onclick="nextQuestion()">
+                        ⏭️ 다음 문제
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 답안 화면 -->
+        <div class="screen" id="answer-screen">
+            <div class="answer-card">
+                <div class="answer-title">정답</div>
+                <div class="answer-text" id="answer-text">
+                    정답이 여기에 표시됩니다.
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="controls-row">
+                    <button class="btn btn-small btn-green" 
+                            onmousedown="showKeywordPopup()" 
+                            onmouseup="hideKeywordPopup()"
+                            ontouchstart="showKeywordPopup()" 
+                            ontouchend="hideKeywordPopup()">
+                        🔑 핵심단어
+                    </button>
+                    <button class="btn btn-small btn-secondary" onclick="nextQuestion()">
+                        ⏭️ 다음 문제
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 핵심단어 팝업 -->
+    <div class="keyword-popup-backdrop" id="keyword-backdrop"></div>
+    <div class="keyword-popup" id="keyword-popup">
+        <div class="keyword-word" id="keyword-word">영단어</div>
+        <div class="keyword-meaning" id="keyword-meaning">단어 뜻</div>
+        <div class="keyword-synonyms" id="keyword-synonyms">
+            <strong>동의어:</strong> <span id="synonym-text">동의어</span>
+        </div>
+    </div>
+
+    <script>
+        // 영어 문장 퀴즈 앱 클래스
+        class EnglishQuizApp {
+            constructor() {
+                this.quizData = [];
+                this.currentQuestion = null;
+                this.isDataLoaded = false;
+            }
+
+            async init() {
+                this.showScreen('home-screen');
+                this.hideCloseBtn();
+                this.hideBackBtn();
+                
+                // CSV 데이터 로드
+                await this.loadCSVData();
+            }
+
+            async loadCSVData() {
+                try {
+                    // 데이터 로딩 상태 표시
+                    const infoElement = document.getElementById('data-info');
+                    infoElement.style.display = 'block';
+                    infoElement.textContent = '데이터를 불러오는 중...';
+                    infoElement.classList.remove('error-message');
+                    infoElement.style.background = '#ddd';
+                    infoElement.style.color = '#666';
+
+                    const response = await fetch('./voca.csv');
+                    if (!response.ok) {
+                        throw new Error('CSV 파일을 찾을 수 없습니다.');
+                    }
+                    
+                    const csvText = await response.text();
+                    
+                    // Papa Parse로 CSV 파싱
+                    const results = Papa.parse(csvText, {
+                        header: true,
+                        skipEmptyLines: true,
+                        transformHeader: function(h) {
+                            // 헤더 정규화 (공백 제거)
+                            return h.trim();
+                        }
+                    });
+
+                    if (results.errors.length > 0) {
+                        console.error('CSV 파싱 오류:', results.errors);
+                    }
+
+                    // 데이터 검증 및 필터링
+                    this.quizData = results.data.filter(row => {
+                        // 필수 필드가 모두 있는지 확인
+                        const hasRequiredFields = row['영단어'] && row['단어뜻'] && row['예문'] && row['예문뜻'];
+                        return hasRequiredFields;
+                    });
+
+                    if (this.quizData.length === 0) {
+                        throw new Error('유효한 데이터가 없습니다.');
+                    }
+
+                    this.isDataLoaded = true;
+                    
+                    // 성공 메시지 표시
+                    infoElement.textContent = `${this.quizData.length}개의 문제가 준비되었습니다!`;
+                    infoElement.style.background = '#00b894';
+                    infoElement.style.color = 'white';
+                    
+                    // 3초 후 메시지 숨기기
+                    setTimeout(() => {
+                        infoElement.style.display = 'none';
+                    }, 3000);
+
+                    console.log(`${this.quizData.length}개의 문제가 로드되었습니다.`);
+                    
+                } catch (error) {
+                    console.error('데이터 로딩 실패:', error);
+                    
+                    const infoElement = document.getElementById('data-info');
+                    infoElement.style.display = 'block';
+                    infoElement.textContent = `오류: ${error.message}`;
+                    infoElement.classList.add('error-message');
+                    infoElement.style.background = '#ffeaa7';
+                    infoElement.style.color = '#ff7675';
+                    
+                    this.isDataLoaded = false;
+                }
+            }
+
+            showScreen(screenId) {
+                // 모든 스크린 숨기기
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                
+                // 선택된 스크린 보이기
+                setTimeout(() => {
+                    document.getElementById(screenId).classList.add('active');
+                    document.getElementById(screenId).classList.add('fade-in');
+                }, 100);
+
+                // 버튼 표시 상태 관리
+                if (screenId === 'home-screen' || screenId === 'loading-screen') {
+                    this.hideCloseBtn();
+                    this.hideBackBtn();
+                } else if (screenId === 'question-screen') {
+                    this.showCloseBtn();
+                    this.hideBackBtn();
+                } else if (screenId === 'answer-screen') {
+                    this.showCloseBtn();
+                    this.showBackBtn();
+                }
+            }
+
+            showCloseBtn() {
+                document.querySelector('.close-btn').classList.add('visible');
+            }
+
+            hideCloseBtn() {
+                document.querySelector('.close-btn').classList.remove('visible');
+            }
+
+            showBackBtn() {
+                document.querySelector('.back-btn').classList.add('visible');
+            }
+
+            hideBackBtn() {
+                document.querySelector('.back-btn').classList.remove('visible');
+            }
+
+            // 랜덤 문제 선택
+            getRandomQuestion() {
+                if (this.quizData.length === 0) return null;
+                
+                const randomIndex = Math.floor(Math.random() * this.quizData.length);
+                return this.quizData[randomIndex];
+            }
+
+            startQuiz() {
+                if (!this.isDataLoaded) {
+                    alert('데이터가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.');
+                    return;
+                }
+
+                this.showQuestion();
+            }
+
+            showQuestion() {
+                this.currentQuestion = this.getRandomQuestion();
+                
+                if (!this.currentQuestion) {
+                    alert('문제를 불러올 수 없습니다.');
+                    return;
+                }
+
+                // 문제 표시 (예문뜻을 문제로)
+                document.getElementById('question-text').textContent = this.currentQuestion['예문뜻'];
+                
+                this.showScreen('question-screen');
+            }
+
+            showAnswer() {
+                if (!this.currentQuestion) return;
+                
+                // 정답 표시 (예문을 정답으로)
+                document.getElementById('answer-text').textContent = this.currentQuestion['예문'];
+                
+                this.showScreen('answer-screen');
+            }
+
+            showKeywordPopup() {
+                if (!this.currentQuestion) return;
+                
+                // 핵심단어 정보 설정
+                document.getElementById('keyword-word').textContent = this.currentQuestion['영단어'];
+                document.getElementById('keyword-meaning').textContent = this.currentQuestion['단어뜻'];
+                document.getElementById('synonym-text').textContent = this.currentQuestion['동의어'] || '없음';
+                
+                // 팝업 표시
+                document.getElementById('keyword-backdrop').classList.add('visible');
+                document.getElementById('keyword-popup').classList.add('visible');
+            }
+
+            hideKeywordPopup() {
+                document.getElementById('keyword-backdrop').classList.remove('visible');
+                document.getElementById('keyword-popup').classList.remove('visible');
+            }
+
+            goBackToQuestion() {
+                this.showScreen('question-screen');
+            }
+
+            nextQuestion() {
+                this.showQuestion();
+            }
+
+            goHome() {
+                this.showScreen('home-screen');
+            }
+        }
+
+        // 전역 함수들 (HTML에서 호출)
+        function startQuiz() {
+            quiz.startQuiz();
+        }
+
+        function showAnswer() {
+            quiz.showAnswer();
+        }
+
+        function nextQuestion() {
+            quiz.nextQuestion();
+        }
+
+        function goHome() {
+            quiz.goHome();
+        }
+
+        function goBackToQuestion() {
+            quiz.goBackToQuestion();
+        }
+
+        function showKeywordPopup() {
+            quiz.showKeywordPopup();
+        }
+
+        function hideKeywordPopup() {
+            quiz.hideKeywordPopup();
+        }
+
+        // 앱 초기화
+        const quiz = new EnglishQuizApp();
+        quiz.init();
+
+        // 키보드 지원
+        document.addEventListener('keydown', function(e) {
+            const currentScreen = document.querySelector('.screen.active').id;
+            
+            if (currentScreen === 'question-screen') {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    quiz.showAnswer();
+                } else if (e.key === 'ArrowRight' || e.key === 'n' || e.key === 'N') {
+                    e.preventDefault();
+                    quiz.nextQuestion();
+                }
+            } else if (currentScreen === 'answer-screen') {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight' || e.key === 'n' || e.key === 'N') {
+                    e.preventDefault();
+                    quiz.nextQuestion();
+                } else if (e.key === 'ArrowLeft' || e.key === 'b' || e.key === 'B') {
+                    e.preventDefault();
+                    quiz.goBackToQuestion();
+                } else if (e.key === 'k' || e.key === 'K') {
+                    // K키로 핵심단어 토글
+                    const popup = document.getElementById('keyword-popup');
+                    if (popup.classList.contains('visible')) {
+                        quiz.hideKeywordPopup();
+                    } else {
+                        quiz.showKeywordPopup();
+                    }
+                }
+            }
+            
+            // ESC 키로 홈으로 이동
+            if (e.key === 'Escape') {
+                quiz.hideKeywordPopup();
+                quiz.goHome();
+            }
+        });
+
+        // 핵심단어 팝업 배경 클릭시 닫기
+        document.getElementById('keyword-backdrop').addEventListener('click', function() {
+            quiz.hideKeywordPopup();
+        });
+
+        // 터치 이벤트 최적화
+        document.addEventListener('touchstart', function() {}, {passive: true});
+
+        // 터치 이벤트에서 컨텍스트 메뉴 방지
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
