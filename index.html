@@ -369,7 +369,12 @@
             }
             
             .screen {
-                padding: 75px 15px 15px 15px; /* 상단 패딩 대폭 증가 */
+                padding: 20px 15px 15px 15px; /* 상단 패딩 대폭 줄임 */
+            }
+            
+            /* 상단 버튼이 있는 화면만 추가 패딩 */
+            #question-screen, #answer-screen {
+                padding-top: 75px;
             }
             
             /* 홈 화면은 상단 버튼이 없으므로 패딩 적게 */
@@ -417,7 +422,7 @@
             
             .controls-row {
                 flex-direction: row; /* 가로 배치로 변경 */
-                justify-content: space-between;
+                justify-content: center; /* 중앙 정렬로 변경 */
                 gap: 10px;
             }
 
